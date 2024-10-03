@@ -117,6 +117,9 @@
 (defn -main
   "The main entry point of this program."
   [args]
+
+  (alter-var-root #'*exit-on-error* (constantly true))
+
   (let [arguments args
         page (-> (str/join "-" arguments) (str/lower-case) (str page-suffix))]
     (display "osx" page)))

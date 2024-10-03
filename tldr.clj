@@ -114,7 +114,11 @@
    (let [file (or (first (lookup platform page)) (io/file ""))]
      (display file))))
 
-(let [arguments *command-line-args*
-      page (-> (str/join "-" arguments) (str/lower-case) (str page-suffix))]
-  (display "osx" page)
-  (System/exit 0))
+(defn -main
+  "The main entry point of this program."
+  [args]
+  (let [arguments args
+        page (-> (str/join "-" arguments) (str/lower-case) (str page-suffix))]
+    (display "osx" page)))
+
+(-main *command-line-args*)

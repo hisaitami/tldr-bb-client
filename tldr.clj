@@ -85,14 +85,9 @@
     (apply str (replace colors coll))))
 
 (defn tty? [x]
-  (-> ["test" "-t" (x {:in 0 :out 1 :err 2})]
-      (p/shell {:continue true})
-      :exit
-      (= 0)))
-
-;(println "stdin is tty?" (tty? :in))
-;(println "stdout is tty?" (tty? :out))
-;(println "stderr is tty?" (tty? :err))
+  (let [fd (x {:in 0 :out 1 :err 2})
+        ret (p/shell ["test" "-t" fd] {:continue true})]
+    (= (:exit ret) 0)))
 
 (defn format [content]
   (let [color? (or *force-color* (and (empty? (:no-color env)) (tty? :out)))

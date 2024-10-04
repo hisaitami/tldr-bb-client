@@ -87,7 +87,7 @@
         ret (p/shell ["test" "-t" fd] {:continue true})]
     (= (:exit ret) 0)))
 
-(defn format [content]
+(defn md->ansi-str [content]
   (let [color? (or *force-color* (and (empty? (:no-color env)) (tty? :out)))
         parse (fn [s m r] (str/replace s m (if color? r "$1")))]
     (-> content
@@ -102,7 +102,7 @@
 (defn display
   ([^java.io.File file]
    (or (.exists file) (die "This page doesn't exist yet!"))
-   (->> (format (slurp file)) (str \newline) println))
+   (->> (md->ansi-str (slurp file)) (str \newline) println))
   ([platform page]
    (let [file (or (first (lookup platform page)) (io/file ""))]
      (display file))))

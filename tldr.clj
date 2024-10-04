@@ -1,12 +1,10 @@
 #!/usr/bin/env bb
 
-(ns tldr-bb-client.core
-  "A TLDR pages client written in Babashka"
-  (:require [babashka.process :as p]
-            [clojure.java.io :as io]
-            [clojure.string :as str]
-            [clojure.math :as math]
-            [clojure.tools.cli :refer [parse-opts]]))
+(require '[babashka.process :as p]
+         '[clojure.java.io :as io]
+         '[clojure.math :as math]
+         '[clojure.string :as str]
+         '[clojure.tools.cli :refer [parse-opts]])
 
 (def ^:dynamic *verbose* false)
 

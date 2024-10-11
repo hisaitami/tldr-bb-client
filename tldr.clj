@@ -1,6 +1,7 @@
 #!/usr/bin/env bb
 
-(require '[babashka.process :as p]
+(require '[babashka.fs :as fs]
+         '[babashka.process :as p]
          '[clojure.java.io :as io]
          '[clojure.math :as math]
          '[clojure.string :as str]
@@ -62,7 +63,7 @@
   (for [lang lang-priority-list
         platform (distinct [platform "common"])
         :let [path (cache-path lang platform page)]
-        :when (.exists path)]
+        :when (fs/exists? path)]
     path))
 
 (defn die [& args]
@@ -100,12 +101,11 @@
         (str/replace #"\\([{}])" "$1"))))
 
 (defn display
-  ([^java.io.File file]
-   (or (.exists file) (die "This page doesn't exist yet!"))
-   (->> (md->ansi-str (slurp file)) (str \newline) println))
+  ([file]
+   (or (fs/exists? file) (die "This page doesn't exist yet!"))
+   (->> (slurp file) md->ansi-str (str \newline) println))
   ([platform page]
-   (let [file (or (first (lookup platform page)) (io/file ""))]
-     (display file))))
+   (display (first (lookup platform page)))))
 
 (defn -main
   "The main entry point of this program."

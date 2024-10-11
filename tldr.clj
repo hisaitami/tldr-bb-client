@@ -14,10 +14,11 @@
 (def ^:dynamic *exit-on-error* false)
 
 (def env
-  (let [m (System/getenv)
-        ks (map (comp keyword #(str/replace % #"_" "-") str/lower-case) (keys m))
-        vs (vals m)]
-    (zipmap ks vs)))
+  (let [envname->keyword (comp keyword #(str/replace % #"_" "-") str/lower-case)
+        m (System/getenv)
+        k (map envname->keyword (keys m))
+        v (vals m)]
+    (zipmap k v)))
 
 (def tldr-home ".tldrc")
 

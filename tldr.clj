@@ -1,7 +1,7 @@
 #!/usr/bin/env bb
 
 (require '[babashka.fs :as fs]
-         '[babashka.process :as p]
+         '[babashka.process :refer [shell]]
          '[clojure.java.io :as io]
          '[clojure.math :as math]
          '[clojure.string :as str]
@@ -86,7 +86,7 @@
 
 (defn tty? [x]
   (let [fd (x {:in 0 :out 1 :err 2})
-        ret (p/shell ["test" "-t" fd] {:continue true})]
+        ret (shell ["test" "-t" fd] {:continue true})]
     (= (:exit ret) 0)))
 
 (defn md->ansi-str [content]
@@ -109,12 +109,12 @@
    (display (first (lookup platform page)))))
 
 (defn mkdtemp [template]
-  (let [ret (p/shell {:out :string :err :string} "mktemp -d" template)]
+  (let [ret (shell {:out :string :err :string} "mktemp -d" template)]
     (or (empty? (:err ret)) (die "Error: Creating Directory:" template))
     (str/trim (:out ret))))
 
 (defn download-zip [url path]
-  (let [ret (p/shell {:err :string} "curl -sL" url "-o" path)]
+  (let [ret (shell {:err :string} "curl -sL" url "-o" path)]
     (or (empty? (:err ret)) (die "Error: Downloading File:" url))
     path))
 
@@ -122,8 +122,8 @@
   (let [tmp-dir (mkdtemp "/tmp/tldr-XXXXXX")
         zip-path (download-zip zip-url (str (io/file tmp-dir zip-file)))]
     (when *verbose* (println "Successfully downloaded:" zip-path))
-    (p/shell {:dir (:home env)} "unzip -q" "-uo" zip-path "-d" tldr-home)
-    (when (fs/directory? tmp-dir) (p/shell "rm -rf" tmp-dir))
+    (shell {:dir (:home env)} "unzip -q" "-uo" zip-path "-d" tldr-home)
+    (when (fs/directory? tmp-dir) (shell "rm -rf" tmp-dir))
     (spit cache-date (current-datetime))
     (println "Successfully updated local database")))
 
@@ -141,7 +141,7 @@
         (update-localdb)))))
 
 (defn- default-platform []
-  (let [ret (p/shell {:out :string :err :string} "uname -s")]
+  (let [ret (shell {:out :string :err :string} "uname -s")]
     (or (empty? (:err ret)) (die "Error: Unknown platform"))
     (let [sysname (str/trim (:out ret))]
       (case sysname

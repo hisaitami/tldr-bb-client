@@ -13,7 +13,7 @@ A [TLDR pages](https://tldr.sh/) client written in Babashka
 On macOS:
 
 ```
-brew install babashka
+brew install borkdude/brew/babashka
 ```
 
 ### Installation

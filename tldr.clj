@@ -108,14 +108,67 @@
   ([platform page]
    (display (first (lookup platform page)))))
 
+(defn- default-platform []
+  (let [ret (p/shell {:out :string :err :string} "uname -s")]
+    (or (empty? (:err ret)) (die "Error: Unknown platform"))
+    (let [sysname (str/trim (:out ret))]
+      (case sysname
+        "Linux" "linux"
+        "Darwin" "osx"
+        "SunOS" "sunos"
+        "Windows" "windows"
+        "common"))))
+
+(def cli-spec [["-h" "--help" "print this help and exit"]
+               ["-v" "--version" "print version and exit"]])
+
+(def version "tldr-bb-client v0.0.1")
+
+(defn usage [options-summary]
+  (->> ["usage: tldr.clj [OPTION]... PAGE\n"
+        "available commands:"
+        options-summary]
+       (str/join \newline)))
+
+(defn- has-key? [m k]
+  (contains? k m))
+
+(defn- select-platform [options]
+  (condp has-key? options
+    :linux   "linux"
+    :osx     "osx"
+    :sunos   "sunos"
+    :windows "windows"
+    (or (:platform options) "common")))
+
 (defn -main
   "The main entry point of this program."
   [args]
+  (let [{:keys [options arguments errors summary]} (parse-opts args cli-spec)
+        platform (select-platform options)]
 
-  (alter-var-root #'*exit-on-error* (constantly true))
+    (alter-var-root #'*exit-on-error* (constantly true))
+    (when errors
+      (die "The following errors occurred while parsing your command:\n\n"
+           (str/join \newline errors)))
 
-  (let [arguments args
-        page (-> (str/join "-" arguments) (str/lower-case) (str page-suffix))]
-    (display "osx" page)))
+    (alter-var-root #'*verbose* (constantly (:verbose options)))
+    (alter-var-root #'*force-color* (constantly (:verbose options)))
+
+    (condp has-key? options
+      ;; show version info
+      :version (println version)
+
+      ;; show usage summary
+      :help (println (usage summary))
+
+      ;; if no argument is given, show usage and exit as failure,
+      ;; otherwise display the specified page
+      (if (empty? arguments) (die (usage summary))
+        (let [update? (empty? (:tldr-auto-update-disabled env))
+              page (-> (str/join "-" arguments) str/lower-case (str page-suffix) fs/file-name)]
+          ;;TODO
+          ;;(when update? (check-localdb))
+          (display platform page))))))
 
 (-main *command-line-args*)

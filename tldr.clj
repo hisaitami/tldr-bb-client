@@ -108,6 +108,38 @@
   ([platform page]
    (display (first (lookup platform page)))))
 
+(defn mkdtemp [template]
+  (let [ret (p/shell {:out :string :err :string} "mktemp -d" template)]
+    (or (empty? (:err ret)) (die "Error: Creating Directory:" template))
+    (str/trim (:out ret))))
+
+(defn download-zip [url path]
+  (let [ret (p/shell {:err :string} "curl -sL" url "-o" path)]
+    (or (empty? (:err ret)) (die "Error: Downloading File:" url))
+    path))
+
+(defn update-localdb []
+  (let [tmp-dir (mkdtemp "/tmp/tldr-XXXXXX")
+        zip-path (download-zip zip-url (str (io/file tmp-dir zip-file)))]
+    (when *verbose* (println "Successfully downloaded:" zip-path))
+    (p/shell {:dir (:home env)} "unzip -q" "-uo" zip-path "-d" tldr-home)
+    (when (fs/directory? tmp-dir) (p/shell "rm -rf" tmp-dir))
+    (spit cache-date (current-datetime))
+    (println "Successfully updated local database")))
+
+(defn check-localdb []
+  (when *verbose* (println "Checking local database..."))
+  (if (not (fs/exists? cache-date)) (update-localdb)
+    (let [created (parse-long (slurp cache-date))
+          current (current-datetime)
+          elapsed (- current created)]
+      (when *verbose* (println "*" created current elapsed))
+      (when (> elapsed (* 60 60 24 7 2))
+        (println "Local database is older than two weeks, attempting to update it..."
+                 "\nTo prevent automatic updates, set the environment variable"
+                 "TLDR_AUTO_UPDATE_DISABLED")
+        (update-localdb)))))
+
 (defn- default-platform []
   (let [ret (p/shell {:out :string :err :string} "uname -s")]
     (or (empty? (:err ret)) (die "Error: Unknown platform"))
@@ -120,7 +152,11 @@
         "common"))))
 
 (def cli-spec [["-h" "--help" "print this help and exit"]
-               ["-v" "--version" "print version and exit"]])
+               ["-u" "--update" "update local database"]
+               ["-v" "--version" "print version and exit"]
+               ["-V" "--verbose" "display verbose output"
+                :default false
+                :default-desc ""]])
 
 (def version "tldr-bb-client v0.0.1")
 
@@ -162,13 +198,15 @@
       ;; show usage summary
       :help (println (usage summary))
 
+      ;; update local database
+      :update (update-localdb)
+
       ;; if no argument is given, show usage and exit as failure,
       ;; otherwise display the specified page
       (if (empty? arguments) (die (usage summary))
         (let [update? (empty? (:tldr-auto-update-disabled env))
               page (-> (str/join "-" arguments) str/lower-case (str page-suffix) fs/file-name)]
-          ;;TODO
-          ;;(when update? (check-localdb))
+          (when update? (check-localdb))
           (display platform page))))))
 
 (-main *command-line-args*)

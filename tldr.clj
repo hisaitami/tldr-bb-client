@@ -2,7 +2,6 @@
 
 (require '[babashka.fs :as fs]
          '[babashka.process :refer [shell]]
-         '[clojure.java.io :as io]
          '[clojure.math :as math]
          '[clojure.string :as str]
          '[clojure.tools.cli :refer [parse-opts]])
@@ -28,7 +27,7 @@
 
 (def page-suffix ".md")
 
-(def cache-date (io/file (:home env) tldr-home "date"))
+(def cache-date (str (fs/path (:home env) tldr-home "date")))
 
 (def lang-priority-list
   (let [lang (str (:lang env))
@@ -54,18 +53,18 @@
 
 (defn cache-path
   ([]
-   (io/file (:home env) tldr-home))
+   (fs/path (:home env) tldr-home))
   ([platform]
-   (io/file (cache-path) (pages-dir (first lang-priority-list)) platform))
+   (fs/path (cache-path) (pages-dir (first lang-priority-list)) platform))
   ([lang platform page]
-   (io/file (cache-path) (pages-dir lang) platform page)))
+   (fs/path (cache-path) (pages-dir lang) platform page)))
 
 (defn lookup [platform page]
   (for [lang lang-priority-list
         platform (distinct [platform "common"])
         :let [path (cache-path lang platform page)]
         :when (fs/exists? path)]
-    path))
+    (str path)))
 
 (defn die [& args]
   (let [msg (apply str args)]
@@ -120,7 +119,7 @@
 
 (defn update-localdb []
   (let [tmp-dir (mkdtemp "/tmp/tldr-XXXXXX")
-        zip-path (download-zip zip-url (str (io/file tmp-dir zip-file)))]
+        zip-path (download-zip zip-url (str (fs/path tmp-dir zip-file)))]
     (when *verbose* (println "Successfully downloaded:" zip-path))
     (shell {:dir (:home env)} "unzip -q" "-uo" zip-path "-d" tldr-home)
     (when (fs/directory? tmp-dir) (shell "rm -rf" tmp-dir))

@@ -126,6 +126,13 @@
     (spit cache-date (current-datetime))
     (println "Successfully updated local database")))
 
+(defn clear-localdb []
+  (let [{:keys [err]} (shell {:dir (:home env) :err :string} "rm -rf" tldr-home)]
+    (or (empty? err) (die err))
+    (println "Successfully removed"
+             (if *verbose* (str (fs/path (:home env) tldr-home))
+               "local database"))))
+
 (defn check-localdb []
   (when *verbose* (println "Checking local database..."))
   (if (not (fs/exists? cache-date)) (update-localdb)
@@ -153,6 +160,7 @@
 (def cli-spec [["-h" "--help" "print this help and exit"]
                ["-u" "--update" "update local database"]
                ["-v" "--version" "print version and exit"]
+               ["-c" "--clear-cache" "clear local database"]
                ["-V" "--verbose" "display verbose output"
                 :default false
                 :default-desc ""]])
@@ -199,6 +207,9 @@
 
       ;; update local database
       :update (update-localdb)
+
+      ;; clear local database
+      :clear-cache (clear-localdb)
 
       ;; if no argument is given, show usage and exit as failure,
       ;; otherwise display the specified page

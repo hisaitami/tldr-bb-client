@@ -48,8 +48,8 @@ tldr.clj tar
 To control the cache:
 
  ```
- tldr.cljs --update
- tldr.cljs --clear-cache
+ tldr.clj --update
+ tldr.clj --clear-cache
  ```
 
 ## Referenced projects

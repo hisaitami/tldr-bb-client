@@ -165,7 +165,7 @@
                 :default false
                 :default-desc ""]])
 
-(def version "tldr-bb-client v0.0.1")
+(def version "tldr-bb-client v0.0.2")
 
 (defn usage [options-summary]
   (->> ["usage: tldr.clj [OPTION]... PAGE\n"

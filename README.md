@@ -32,8 +32,11 @@ tldr.clj
 usage: tldr.clj [OPTION]... PAGE
 
 available commands:
-  -h, --help                 print this help and exit
-  -v, --version              print version and exit
+  -h, --help           print this help and exit
+  -u, --update         update local database
+  -v, --version        print version and exit
+  -c, --clear-cache    clear local database
+  -V, --verbose        display verbose output
 ```
 
 Examples:
@@ -41,6 +44,13 @@ Examples:
 ```
 tldr.clj tar
 ```
+
+To control the cache:
+
+ ```
+ tldr.cljs --update
+ tldr.cljs --clear-cache
+ ```
 
 ## Referenced projects
 

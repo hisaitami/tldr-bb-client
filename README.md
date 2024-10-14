@@ -37,12 +37,14 @@ available commands:
   -v, --version        print version and exit
   -c, --clear-cache    clear local database
   -V, --verbose        display verbose output
+  -l, --list           list all entries in the local database
 ```
 
 Examples:
 
 ```
 tldr.clj tar
+tldr.clj --list
 ```
 
 To control the cache:

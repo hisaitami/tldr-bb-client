@@ -133,6 +133,15 @@
              (if *verbose* (str (fs/path (:home env) tldr-home))
                "local database"))))
 
+(defn list-localdb [platform]
+  (let [path (cache-path platform)
+        re (re-pattern (str page-suffix "$"))]
+    (or (fs/exists? path) (die "Can't open cache directory:" path))
+    (println (md->ansi-str "# Pages for"))
+    (doseq [file (fs/list-dir path)]
+      (let [entry (str/replace (fs/file-name file) re "")]
+        (println entry)))))
+
 (defn check-localdb []
   (when *verbose* (println "Checking local database..."))
   (if (not (fs/exists? cache-date)) (update-localdb)
@@ -163,7 +172,8 @@
                ["-c" "--clear-cache" "clear local database"]
                ["-V" "--verbose" "display verbose output"
                 :default false
-                :default-desc ""]])
+                :default-desc ""]
+               ["-l" "--list" "list all entries in the local database"]])
 
 (def version "tldr-bb-client v0.0.2")
 
@@ -210,6 +220,9 @@
 
       ;; clear local database
       :clear-cache (clear-localdb)
+
+      ;; list all entries in the local database
+      :list (list-localdb platform)
 
       ;; if no argument is given, show usage and exit as failure,
       ;; otherwise display the specified page

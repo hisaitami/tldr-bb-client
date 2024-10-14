@@ -206,7 +206,7 @@
            (str/join \newline errors)))
 
     (alter-var-root #'*verbose* (constantly (:verbose options)))
-    (alter-var-root #'*force-color* (constantly (:verbose options)))
+    (alter-var-root #'*force-color* (constantly (:color options)))
 
     (condp has-key? options
       ;; show version info

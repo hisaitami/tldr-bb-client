@@ -179,7 +179,7 @@
                ["-l" "--list" "list all entries in the local database"]
                [nil, "--random" "display a random command"]])
 
-(def version "tldr-bb-client v0.0.2")
+(def version "tldr-bb-client v0.0.3")
 
 (defn usage [options-summary]
   (->> ["usage: tldr.clj [OPTION]... PAGE\n"

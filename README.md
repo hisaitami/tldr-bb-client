@@ -32,19 +32,21 @@ tldr.clj
 usage: tldr.clj [OPTION]... PAGE
 
 available commands:
-  -h, --help           print this help and exit
-  -u, --update         update local database
-  -v, --version        print version and exit
-  -c, --clear-cache    clear local database
-  -V, --verbose        display verbose output
-  -l, --list           list all entries in the local database
-      --random         display a random command
+  -h, --help                print this help and exit
+  -p, --platform PLATFORM   select platform, supported are linux / osx / sunos / windows / common
+  -u, --update              update local database
+  -v, --version             print version and exit
+  -c, --clear-cache         clear local database
+  -V, --verbose             display verbose output
+  -l, --list                list all entries in the local database
+      --random              display a random command
 ```
 
 Examples:
 
 ```
 tldr.clj tar
+tldr.clj du --platform=osx
 tldr.clj --list
 tldr.clj --random
 ```

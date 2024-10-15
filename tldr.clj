@@ -170,6 +170,12 @@
         "common"))))
 
 (def cli-spec [["-h" "--help" "print this help and exit"]
+               ["-p" "--platform PLATFORM"
+                "select platform, supported are linux / osx / sunos / windows / common"
+                :default (default-platform)
+                :default-desc ""
+                :validate [#(contains? #{"linux" "osx" "sunos" "windows" "common"} %)
+                           "supported are linux / osx / sunos / windows / common"]]
                ["-u" "--update" "update local database"]
                ["-v" "--version" "print version and exit"]
                ["-c" "--clear-cache" "clear local database"]

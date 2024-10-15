@@ -107,6 +107,9 @@
   ([platform page]
    (display (first (lookup platform page)))))
 
+(defn rand-page [platform]
+  (-> (cache-path platform) fs/list-dir rand-nth str))
+
 (defn mkdtemp [template]
   (let [ret (shell {:out :string :err :string} "mktemp -d" template)]
     (or (empty? (:err ret)) (die "Error: Creating Directory:" template))
@@ -173,7 +176,8 @@
                ["-V" "--verbose" "display verbose output"
                 :default false
                 :default-desc ""]
-               ["-l" "--list" "list all entries in the local database"]])
+               ["-l" "--list" "list all entries in the local database"]
+               [nil, "--random" "display a random command"]])
 
 (def version "tldr-bb-client v0.0.2")
 
@@ -223,6 +227,9 @@
 
       ;; list all entries in the local database
       :list (list-localdb platform)
+
+      ;; display a random command
+      :random (display (rand-page platform))
 
       ;; if no argument is given, show usage and exit as failure,
       ;; otherwise display the specified page

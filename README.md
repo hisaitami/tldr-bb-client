@@ -38,6 +38,7 @@ available commands:
   -c, --clear-cache    clear local database
   -V, --verbose        display verbose output
   -l, --list           list all entries in the local database
+      --random         display a random command
 ```
 
 Examples:
@@ -45,6 +46,7 @@ Examples:
 ```
 tldr.clj tar
 tldr.clj --list
+tldr.clj --random
 ```
 
 To control the cache:

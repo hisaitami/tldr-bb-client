@@ -108,7 +108,9 @@
    (display (first (lookup platform page)))))
 
 (defn rand-page [platform]
-  (-> (cache-path platform) fs/list-dir rand-nth str))
+  (let [path (cache-path platform)]
+    (or (fs/exists? path) (die "Can't open cache directory:" path))
+    (-> path fs/list-dir rand-nth str)))
 
 (defn mkdtemp [template]
   (let [ret (shell {:out :string :err :string} "mktemp -d" template)]

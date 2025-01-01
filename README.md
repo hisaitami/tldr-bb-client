@@ -68,6 +68,6 @@ To control the cache:
 
 ## License
 
-Copyright (c) 2024 hisaitami
+Copyright (c) 2025 hisaitami
 
 Distributed under the terms of the [MIT License](LICENSE)
